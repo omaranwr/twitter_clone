@@ -6,11 +6,22 @@ import { cookies } from "next/headers";
 import { SignJWT } from "jose";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import { ActionResponse, SignUpActionResponse, SignupFormSchema } from "@/lib/definitions";
+import * as z from 'zod'
 
-export const createUser = async (formData: FormData) => {
+export const createUser = 
+async (_: SignUpActionResponse, formData: FormData) : Promise<SignUpActionResponse> => {
+
   const name = formData.get('name') as string
   const username = formData.get('username') as string
   const password = formData.get('password') as string
+
+  try {
+    SignupFormSchema.parse({ name, username, password })
+  } catch (e) {
+    if (e instanceof z.ZodError) 
+      return { errors: z.flattenError(e).fieldErrors }
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
@@ -18,14 +29,15 @@ export const createUser = async (formData: FormData) => {
   redirect('/log-in')
 }
 
-export const loginUser = async (formData: FormData) => {
+export const loginUser = 
+async (_: ActionResponse, formData: FormData) : Promise<ActionResponse> => {
   const username = formData.get('username') as string
   const password = formData.get('password') as string
 
   const existingUser = await db.select().from(user).where(eq(user.username, username)).get()
   const res = await bcrypt.compare(password, existingUser?.password || '')
   if (!existingUser || !res) {
-    return { error: 'Invalid username or password' }
+    return { message: 'Invalid username or password' }
   }
 
   const secret = new TextEncoder().encode(process.env.JWT_SECRET)
