@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { SignJWT } from "jose";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { ActionResponse, SignUpActionResponse, SignupFormSchema } from "@/lib/definitions";
+import { ActionResponse, SignUpActionResponse, SignupFormSchema, AccessTokenPayload } from "@/lib/definitions";
 import * as z from 'zod'
 
 export const createUser = 
@@ -41,12 +41,19 @@ async (_: ActionResponse, formData: FormData) : Promise<ActionResponse> => {
   }
 
   const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+
   const refreshToken = await new SignJWT({ id: existingUser.id, password: existingUser.password })
     .setProtectedHeader({ alg: "HS256", typ: "JWT" })
     .setIssuedAt()
     .setExpirationTime("24w")
     .sign(secret)
-  const accessToken = await new SignJWT({ username })
+
+  const accessTokenPayload: AccessTokenPayload = { 
+    id: existingUser.id,
+    username: existingUser.username,
+    name: existingUser.name
+  }
+  const accessToken = await new SignJWT(accessTokenPayload)
     .setProtectedHeader({ alg: "HS256", typ: "JWT" })
     .setIssuedAt()
     .setExpirationTime("1h")

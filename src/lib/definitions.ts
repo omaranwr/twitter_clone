@@ -1,3 +1,4 @@
+import { JWTPayload } from 'jose'
 import * as z from 'zod'
  
 export const SignupFormSchema = z.object({
@@ -28,3 +29,9 @@ export type SignUpActionResponse = {
   }
   message?: string
 } | undefined
+
+export interface AccessTokenPayload extends JWTPayload {
+  id: number;
+  username: string;
+  name: string;
+}
