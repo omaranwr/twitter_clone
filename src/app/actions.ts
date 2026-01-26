@@ -1,13 +1,13 @@
 "use server";
 import db from "@/db";
-import { user } from "@/db/schema";
+import { user, post } from "@/db/schema";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { SignJWT } from "jose";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { ActionResponse, SignUpActionResponse, SignupFormSchema, AccessTokenPayload } from "@/lib/definitions";
 import * as z from 'zod'
+import { generateAccessToken, generateRefreshToken, setCookies, verifyCookies } from "@/lib/auth";
 
 export const createUser = 
 async (_: SignUpActionResponse, formData: FormData) : Promise<SignUpActionResponse> => {
@@ -40,42 +40,35 @@ async (_: ActionResponse, formData: FormData) : Promise<ActionResponse> => {
     return { message: 'Invalid username or password' }
   }
 
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET)
-
-  const refreshToken = await new SignJWT({ id: existingUser.id, password: existingUser.password })
-    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
-    .setIssuedAt()
-    .setExpirationTime("24w")
-    .sign(secret)
+  const refreshToken = await generateRefreshToken(existingUser.id, existingUser.password)
 
   const accessTokenPayload: AccessTokenPayload = { 
     id: existingUser.id,
     username: existingUser.username,
     name: existingUser.name
   }
-  const accessToken = await new SignJWT(accessTokenPayload)
-    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
-    .setIssuedAt()
-    .setExpirationTime("1h")
-    .sign(secret)
+  const accessToken = await generateAccessToken(accessTokenPayload)
 
   const cookieStore = await cookies()
-  cookieStore.set("refresh_token", refreshToken, 
-    { 
-      httpOnly: true, 
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7 * 24, // 24 weeks
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
-    })  
-  cookieStore.set("access_token", accessToken, 
-    { 
-      httpOnly: true, 
-      path: '/',
-      maxAge: 60 * 60, // 1 hour
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
-    })
+  setCookies(cookieStore, refreshToken,  accessToken)
 
   redirect('/')
+}
+
+export const postMessage = 
+async (_: ActionResponse, formData: FormData) : Promise<ActionResponse> => {
+
+  const cookieStore = await cookies()
+  const user = await verifyCookies(cookieStore)
+  if (!user) {
+    redirect('/log-in')
+  }
+  
+  const message = formData.get('message') as string
+  const result = await db.insert(post).values({ userId: user.id, content: message }).run()
+  if (!result) {
+    return { message: 'Failed to post message' }
+  }
+
+  redirect("/posts")
 }

@@ -1,4 +1,5 @@
-import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm/sql/sql";
+import { int, sqliteTable, text  } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
   id: int().primaryKey({ autoIncrement: true }),
@@ -11,4 +12,5 @@ export const post = sqliteTable("post", {
   id: int().primaryKey({ autoIncrement: true }),
   userId: int().notNull().references(() => user.id),
   content: text().notNull(),
+  timestamp: text().notNull().default(sql`(CURRENT_TIMESTAMP)`),
 });
