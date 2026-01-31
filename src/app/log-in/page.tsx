@@ -14,7 +14,7 @@ function LogInPage() {
         className="block"/>
 
         {state?.message && (
-          <p className="text-red-950 dark:text-red-400">{state.message}</p>
+          <p className="text-error">{state.message}</p>
         )}
         <button type="submit" disabled={pending}>Sign Up</button>
       </form>

@@ -32,7 +32,7 @@ function SignUpPage() {
         {state?.errors?.password && (
           <ul>
             {state.errors.password.map((err, idx) => (
-              <li key={idx} className="text-red-950 dark:text-red-400">{err}</li>
+              <li key={idx} className="text-error">{err}</li>
             ))}
           </ul>
         )}
