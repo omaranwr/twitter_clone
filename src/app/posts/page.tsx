@@ -1,11 +1,12 @@
 import db from "@/db"
 import { post, user } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { desc, eq } from "drizzle-orm"
 
 async function PostsPage() {
   const res = await db.select()
   .from(post)
-  .leftJoin(user, eq(user.id, post.userId)).all()
+  .leftJoin(user, eq(user.id, post.userId))
+  .orderBy(desc(post.timestamp)).all()
 
   return (
     <>
