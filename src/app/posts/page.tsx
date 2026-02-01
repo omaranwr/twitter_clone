@@ -1,7 +1,6 @@
 import db from "@/db"
 import { post, user } from "@/db/schema"
 import { desc, eq } from "drizzle-orm"
-
 async function PostsPage() {
 
   const res = await db.select()
