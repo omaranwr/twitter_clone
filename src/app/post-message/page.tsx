@@ -14,7 +14,7 @@ function MessagePostingPage() {
           {state?.message && 
           (<p className="text-error">{state.message}</p>)}
           <button type="submit" disabled={pending}
-          className="submit-button">Post</button>
+          className="submit">Post</button>
         </form>
       </div>
     </div>
