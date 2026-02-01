@@ -8,6 +8,8 @@ export default function HomePage() {
         <ul className="flex flex-col gap-3 items-center p-10 rounded-lg">
           <li className="text-2xl px-4 py-2 border border-foreground rounded-lg hover:bg-foreground hover:text-background"><Link href="/post-message">Post a message</Link></li>
           <li className="text-2xl px-4 py-2 border border-foreground rounded-lg hover:bg-foreground hover:text-background"><Link href="/posts">See posts</Link></li>
+          <li className="text-2xl px-4 py-2 border border-foreground rounded-lg hover:bg-foreground hover:text-background"><Link href="/sign-up">Sign up</Link></li>
+          <li className="text-2xl px-4 py-2 border border-foreground rounded-lg hover:bg-foreground hover:text-background"><Link href="/login">Log in</Link></li>
         </ul>
       </nav>
     </div>
