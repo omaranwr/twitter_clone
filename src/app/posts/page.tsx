@@ -3,6 +3,7 @@ import { post, user } from "@/db/schema"
 import { desc, eq } from "drizzle-orm"
 
 async function PostsPage() {
+
   const res = await db.select()
   .from(post)
   .leftJoin(user, eq(user.id, post.userId))

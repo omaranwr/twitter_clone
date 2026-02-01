@@ -8,6 +8,7 @@ import bcrypt from "bcryptjs";
 import { ActionResponse, SignUpActionResponse, SignupFormSchema, AccessTokenPayload } from "@/lib/definitions";
 import * as z from 'zod'
 import { generateAccessToken, generateRefreshToken, setCookies, verifyCookies } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export const createUser = 
 async (_: SignUpActionResponse, formData: FormData) : Promise<SignUpActionResponse> => {
@@ -70,5 +71,6 @@ async (_: ActionResponse, formData: FormData) : Promise<ActionResponse> => {
     return { message: 'Failed to post message' }
   }
 
+  revalidatePath("/posts")
   redirect("/posts")
 }
