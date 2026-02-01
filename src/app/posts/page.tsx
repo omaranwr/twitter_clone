@@ -1,8 +1,12 @@
 import db from "@/db"
 import { post, user } from "@/db/schema"
 import { desc, eq } from "drizzle-orm"
+import { connection } from "next/server"
 
 async function PostsPage() {
+
+  await connection()
+
   const res = await db.select()
   .from(post)
   .leftJoin(user, eq(user.id, post.userId))
