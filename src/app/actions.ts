@@ -62,7 +62,7 @@ async (_: ActionResponse, formData: FormData) : Promise<ActionResponse> => {
   const cookieStore = await cookies()
   const user = await verifyCookies(cookieStore)
   if (!user) {
-    redirect('/sign-in')
+    redirect('/sign-up')
   }
   
   const message = formData.get('message') as string
