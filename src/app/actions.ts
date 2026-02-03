@@ -16,6 +16,9 @@ async (_: SignUpActionResponse, formData: FormData) : Promise<SignUpActionRespon
   const name = formData.get('name') as string
   const username = formData.get('username') as string
   const password = formData.get('password') as string
+  
+  const arr = await db.select().from(user).where(eq(user.username, username)).all();
+  if(arr.length > 0) return {errors: {username: ["Username already exists"]}}
 
   try {
     SignupFormSchema.parse({ name, username, password })
